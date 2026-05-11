@@ -1,0 +1,15 @@
+requests
+pandas
+numpy
+scikit-learn
+xgboost
+tensorflow
+shap
+hopsworks
+streamlit
+python-dotenv
+matplotlib
+seaborn
+plotly
+fastapi
+uvicorn
