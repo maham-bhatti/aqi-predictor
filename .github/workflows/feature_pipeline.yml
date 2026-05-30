@@ -1,1 +1,29 @@
 # Feature Pipeline Workflow
+name: Hourly Feature Pipeline
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # runs every hour
+  workflow_dispatch:       # manual trigger button
+
+jobs:
+  run-feature-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pandas numpy supabase python-dotenv
+
+      - name: Run feature pipeline
+        env:
+          AQICN_TOKEN:  ${{ secrets.AQICN_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python feature_pipeline/feature_pipeline.py
