@@ -1,10 +1,9 @@
-# Feature Pipeline Workflow
 name: Hourly Feature Pipeline
 
 on:
   schedule:
-    - cron: '0 * * * *'  # runs every hour
-  workflow_dispatch:       # manual trigger button
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   run-feature-pipeline:
@@ -19,7 +18,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests pandas numpy supabase python-dotenv
+        run: |
+          pip install requests pandas numpy python-dotenv
+          pip install supabase
 
       - name: Run feature pipeline
         env:
