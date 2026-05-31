@@ -1,19 +1,19 @@
 {
   "best_model": "Ridge Regression",
   "model_24h": {
-    "rmse": 10.9346,
-    "mae": 8.1013,
-    "r2": 0.3633
+    "rmse": 10.9365,
+    "mae": 8.087,
+    "r2": 0.3627
   },
   "model_48h": {
-    "rmse": 13.6581,
-    "mae": 10.1956,
-    "r2": 0.0073
+    "rmse": 13.676,
+    "mae": 10.235,
+    "r2": 0.005
   },
   "model_72h": {
-    "rmse": 15.1163,
-    "mae": 11.4063,
-    "r2": -0.1149
+    "rmse": 16.9027,
+    "mae": 11.861,
+    "r2": -0.0976
   },
   "features": [
     "aqi",
@@ -41,33 +41,33 @@
     "aqi_rolling_24h",
     "aqi_change_rate"
   ],
-  "train_size": 6969,
-  "test_size": 1743,
+  "train_size": 6975,
+  "test_size": 1744,
   "all_models": {
     "Linear Regression": {
-      "rmse": 10.9348,
-      "mae": 8.1022,
-      "r2": 0.3633
+      "rmse": 10.9367,
+      "mae": 8.0876,
+      "r2": 0.3627
     },
     "Ridge Regression": {
-      "rmse": 10.9346,
-      "mae": 8.1013,
-      "r2": 0.3633
+      "rmse": 10.9365,
+      "mae": 8.087,
+      "r2": 0.3627
     },
     "Random Forest": {
-      "rmse": 12.2669,
-      "mae": 8.7793,
-      "r2": 0.1987
+      "rmse": 12.3892,
+      "mae": 8.8719,
+      "r2": 0.1821
     },
     "Gradient Boosting": {
-      "rmse": 12.1004,
-      "mae": 8.6355,
-      "r2": 0.2203
+      "rmse": 12.1589,
+      "mae": 8.6469,
+      "r2": 0.2123
     },
     "XGBoost": {
-      "rmse": 12.0603,
-      "mae": 8.5998,
-      "r2": 0.2255
+      "rmse": 12.098,
+      "mae": 8.667,
+      "r2": 0.2201
     }
   }
 }
