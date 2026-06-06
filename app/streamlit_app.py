@@ -648,7 +648,7 @@ with col_metrics:
                     </span>
                 </div>""", unsafe_allow_html=True)
 
-        n_feat = met.get("n_features", 0)
+        n_feat = met.get("features", 0)
         train  = met.get("train_size",  0)
         st.markdown(f"""
         <div style='margin-top:0.8rem;color:{MUTED};font-size:0.8rem;
