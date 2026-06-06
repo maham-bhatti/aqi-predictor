@@ -19,6 +19,5 @@ env/
 Thumbs.db
 
 # Model files (too large for GitHub)
-*.pkl
 *.joblib
 *.h5
