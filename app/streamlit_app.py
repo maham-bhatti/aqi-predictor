@@ -474,13 +474,15 @@ with col_weather:
     ))
     fig_p.update_layout(
         height=220, margin=dict(l=0, r=0, t=20, b=0),
+        paper_bgcolor="rgba(255,255,255,0)",
+        plot_bgcolor="rgba(255,255,255,0)",
+        font_color="#1a3a4a",
         xaxis=dict(showgrid=False, color="#5a8fa8",
                    tickfont=dict(size=11, color="#5a8fa8")),
         yaxis=dict(showgrid=True, gridcolor="rgba(2,136,209,0.1)",
                    color="#5a8fa8", title="μg/m³",
                    titlefont=dict(color="#5a8fa8")),
         showlegend=False,
-        **PLOT_BASE
     )
     st.plotly_chart(fig_p, use_container_width=True)
 
