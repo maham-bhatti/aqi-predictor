@@ -88,7 +88,7 @@ div[data-testid="stPlotlyChart"]{background:transparent !important;border-radius
 </style>
 """, unsafe_allow_html=True)
 
-# ── Config ────────────────────────────────────────────────────
+# ── Constants ─────────────────────────────────────────────────
 AQICN_TOKEN  = os.getenv("AQICN_TOKEN", "")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
@@ -119,7 +119,7 @@ def load_models():
             base = full
             break
     if base is None:
-        st.error(f"❌ Models not found.")
+        st.error("❌ Models not found.")
         return None, None, None, None, None, {}
     try:
         m24  = joblib.load(os.path.join(base, "model_24h.pkl"))
@@ -265,12 +265,13 @@ def make_prediction(aqi_data, weather, models_tup, history_df):
 #  LAYOUT
 # ════════════════════════════════════════════════════════════
 
-# Header
+# ── Header ────────────────────────────────────────────────────
 st.markdown("""
 <div style='display:flex;align-items:center;justify-content:space-between;
             padding:0.8rem 0 1rem;border-bottom:2px solid rgba(2,136,209,0.15);margin-bottom:1rem;'>
     <div>
-        <h1 style='font-size:1.9rem;margin:0;color:#1a3a4a;font-family:Space Grotesk,sans-serif;font-weight:800;'>
+        <h1 style='font-size:1.9rem;margin:0;color:#1a3a4a;
+                   font-family:Space Grotesk,sans-serif;font-weight:800;'>
             🌿 Islamabad <span style='color:#0288d1;'>AQI</span> Predictor
         </h1>
         <p style='color:#5a8fa8;margin:0.25rem 0 0;font-size:0.88rem;'>
@@ -285,7 +286,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Fetch data
+# ── Fetch data ────────────────────────────────────────────────
 with st.spinner("🔄 Fetching live data..."):
     aqi_data   = fetch_live_aqi()
     weather    = fetch_live_weather()
@@ -297,7 +298,7 @@ cat, color, emoji = aqi_category(aqi_data["aqi"])
 now_str           = datetime.now(timezone.utc).strftime("%d %b %Y · %H:%M UTC")
 aqi_val           = aqi_data["aqi"]
 
-# Alert banner
+# ── Alert banner ──────────────────────────────────────────────
 if aqi_val > 200:
     st.markdown(f"<div class='alert-danger'>🚨 <b>HAZARD ALERT</b> — AQI is <b>{aqi_val:.0f}</b>. Everyone must avoid all outdoor activity immediately.</div>", unsafe_allow_html=True)
 elif aqi_val > 150:
@@ -316,31 +317,40 @@ with col_gauge:
     st.markdown("<p class='section-title'>📍 Current AQI · Islamabad</p>", unsafe_allow_html=True)
     fig_g = go.Figure(go.Indicator(
         mode="gauge+number+delta",
-        value=aqi_data["aqi"],
+        value=aqi_val,
         delta={"reference":p24,"valueformat":".0f","prefix":"24h: ",
                "increasing":{"color":"#f4511e"},"decreasing":{"color":"#43a047"}},
-        title={"text":f"{emoji} {cat}","font":{"size":17,"color":FONT_COL,"family":"Space Grotesk"}},
+        title={"text":f"{emoji} {cat}",
+               "font":{"size":17,"color":FONT_COL,"family":"Space Grotesk"}},
         gauge={
-            "axis":{"range":[0,300],"tickcolor":MUTED,"tickfont":{"color":MUTED,"size":10}},
+            "axis":{"range":[0,300],"tickcolor":MUTED,
+                    "tickfont":{"color":MUTED,"size":10}},
             "bar":{"color":color,"thickness":0.26},
-            "bgcolor":"rgba(240,247,255,0.6)","bordercolor":"rgba(2,136,209,0.2)",
+            "bgcolor":"rgba(240,247,255,0.6)",
+            "bordercolor":"rgba(2,136,209,0.2)",
             "steps":[
-                {"range":[0,50],   "color":"rgba(67,160,71,0.12)"},
-                {"range":[50,100], "color":"rgba(255,152,0,0.12)"},
-                {"range":[100,150],"color":"rgba(251,140,0,0.12)"},
-                {"range":[150,200],"color":"rgba(244,81,30,0.12)"},
-                {"range":[200,300],"color":"rgba(198,40,40,0.12)"},
+                {"range":[0,   50], "color":"rgba(67,160,71,0.12)"},
+                {"range":[50, 100], "color":"rgba(255,152,0,0.12)"},
+                {"range":[100,150], "color":"rgba(251,140,0,0.12)"},
+                {"range":[150,200], "color":"rgba(244,81,30,0.12)"},
+                {"range":[200,300], "color":"rgba(198,40,40,0.12)"},
             ],
-            "threshold":{"line":{"color":FONT_COL,"width":3},"thickness":0.8,"value":aqi_val},
+            "threshold":{"line":{"color":FONT_COL,"width":3},
+                         "thickness":0.8,"value":aqi_val},
         },
-        number={"font":{"size":46,"color":color,"family":"Space Grotesk"},"suffix":" AQI"},
+        number={"font":{"size":46,"color":color,"family":"Space Grotesk"},
+                "suffix":" AQI"},
     ))
     fig_g.update_layout(
-        height=300, margin=dict(l=20,r=20,t=40,b=20),
-        paper_bgcolor=BG, plot_bgcolor=BG, font_color=FONT_COL,
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        paper_bgcolor=BG,
+        plot_bgcolor=BG,
     )
     st.plotly_chart(fig_g, use_container_width=True)
-    st.markdown(f"<div style='text-align:center;color:{MUTED};font-size:0.75rem;font-family:Space Grotesk;margin-top:-0.5rem;'>Last updated: {now_str}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center;color:{MUTED};font-size:0.75rem;"
+                f"font-family:Space Grotesk;margin-top:-0.5rem;'>"
+                f"Last updated: {now_str}</div>", unsafe_allow_html=True)
 
 with col_weather:
     st.markdown("<p class='section-title'>🌤️ Current Weather · Islamabad</p>", unsafe_allow_html=True)
@@ -352,10 +362,12 @@ with col_weather:
     with w4: st.metric("🌡️ Pressure",           f"{weather['pressure']:.0f} hPa")
 
     st.markdown("<br><p class='section-title'>🧪 Pollutant Levels</p>", unsafe_allow_html=True)
+
     poll_names  = ["PM2.5","PM10","NO₂","O₃","CO×100","SO₂"]
-    poll_vals   = [aqi_data["pm25"],aqi_data["pm10"],aqi_data["no2"],
-                   aqi_data["o3"],aqi_data["co"]*100,aqi_data["so2"]]
+    poll_vals   = [aqi_data["pm25"], aqi_data["pm10"], aqi_data["no2"],
+                   aqi_data["o3"],   aqi_data["co"]*100, aqi_data["so2"]]
     poll_colors = ["#1e88e5","#00acc1","#9c27b0","#ffa726","#43a047","#e91e63"]
+
     fig_p = go.Figure(go.Bar(
         x=poll_names, y=poll_vals,
         marker_color=poll_colors,
@@ -366,10 +378,13 @@ with col_weather:
         textfont={"color":FONT_COL,"size":11},
     ))
     fig_p.update_layout(
-        height=220, margin=dict(l=0,r=0,t=20,b=0),
-        paper_bgcolor=BG, plot_bgcolor=BG,
-        font_color=FONT_COL, showlegend=False,
-        xaxis=dict(showgrid=False, color=MUTED, tickfont=dict(size=11,color=MUTED)),
+        height=220,
+        margin=dict(l=0, r=0, t=20, b=0),
+        paper_bgcolor=BG,
+        plot_bgcolor=BG,
+        showlegend=False,
+        xaxis=dict(showgrid=False, color=MUTED,
+                   tickfont=dict(size=11, color=MUTED)),
         yaxis=dict(showgrid=True, gridcolor=GRID_COL, color=MUTED,
                    title=dict(text="μg/m³", font=dict(color=MUTED))),
     )
@@ -380,7 +395,8 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ── Row 2: 3-Day Forecast ─────────────────────────────────────
 st.markdown("<p class='section-title'>📅 3-Day AQI Forecast</p>", unsafe_allow_html=True)
 fc1, fc2, fc3 = st.columns(3, gap="medium")
-for col, (label, pred, tag) in zip([fc1,fc2,fc3],
+
+for col, (label, pred, tag) in zip([fc1, fc2, fc3],
         [("Tomorrow",p24,"24h"),("Day After",p48,"48h"),("In 3 Days",p72,"72h")]):
     fcat, fcol, femo = aqi_category(pred)
     with col:
@@ -414,14 +430,22 @@ with col_hist:
             line=dict(color="#0288d1", width=2),
             fill="tozeroy", fillcolor="rgba(2,136,209,0.07)",
         ))
-        for level, lc, ln in [(50,"#43a047","Good"),(100,"#ff9800","Moderate"),(150,"#f4511e","Unhealthy")]:
+        for level, lc, ln in [
+            (50, "#43a047","Good"),
+            (100,"#ff9800","Moderate"),
+            (150,"#f4511e","Unhealthy"),
+        ]:
             fig_h.add_hline(y=level, line_dash="dot", line_color=lc, opacity=0.6,
-                            annotation_text=ln, annotation_font_color=lc, annotation_font_size=10)
+                            annotation_text=ln, annotation_font_color=lc,
+                            annotation_font_size=10)
         fig_h.update_layout(
-            height=280, margin=dict(l=0,r=0,t=10,b=0),
-            paper_bgcolor=BG, plot_bgcolor=BG, font_color=FONT_COL,
+            height=280,
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor=BG,
+            plot_bgcolor=BG,
             hovermode="x unified",
-            xaxis=dict(showgrid=False, color=MUTED, tickfont=dict(color=MUTED)),
+            xaxis=dict(showgrid=False, color=MUTED,
+                       tickfont=dict(color=MUTED)),
             yaxis=dict(showgrid=True, gridcolor=GRID_COL, color=MUTED,
                        title=dict(text="AQI", font=dict(color=MUTED))),
         )
@@ -445,8 +469,10 @@ with col_hourly:
             name="Rain %", marker_color="rgba(2,136,209,0.25)", yaxis="y2",
         ))
         fig_hw.update_layout(
-            height=280, margin=dict(l=0,r=0,t=10,b=0),
-            paper_bgcolor=BG, plot_bgcolor=BG, font_color=FONT_COL,
+            height=280,
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor=BG,
+            plot_bgcolor=BG,
             hovermode="x unified",
             xaxis=dict(showgrid=False, color=MUTED,
                        tickvals=list(range(0,24,4)),
@@ -480,7 +506,12 @@ with col_heat:
             z=pivot.values,
             x=[str(c) for c in pivot.columns],
             y=[f"{h:02d}:00" for h in pivot.index],
-            colorscale=[[0.0,"#43a047"],[0.33,"#ff9800"],[0.66,"#f4511e"],[1.0,"#b71c1c"]],
+            colorscale=[
+                [0.0,  "#43a047"],
+                [0.33, "#ff9800"],
+                [0.66, "#f4511e"],
+                [1.0,  "#b71c1c"],
+            ],
             colorbar=dict(
                 title=dict(text="AQI", font=dict(color=MUTED)),
                 tickfont=dict(color=MUTED),
@@ -488,8 +519,10 @@ with col_heat:
             hoverongaps=False,
         ))
         fig_heat.update_layout(
-            height=280, margin=dict(l=0,r=0,t=10,b=0),
-            paper_bgcolor=BG, plot_bgcolor=BG, font_color=FONT_COL,
+            height=280,
+            margin=dict(l=0, r=0, t=10, b=0),
+            paper_bgcolor=BG,
+            plot_bgcolor=BG,
             xaxis=dict(showgrid=False, color=MUTED, nticks=10,
                        tickfont=dict(color=MUTED),
                        title=dict(text="Date", font=dict(color=MUTED))),
@@ -513,6 +546,7 @@ with col_metrics:
             <p style='color:#0288d1;font-size:1.05rem;font-family:Space Grotesk;
                       margin:0.2rem 0 0;font-weight:800;'>{bm}</p>
         </div>""", unsafe_allow_html=True)
+
         for horizon, key in [("24h Forecast","model_24h"),
                               ("48h Forecast","model_48h"),
                               ("72h Forecast","model_72h")]:
@@ -520,7 +554,7 @@ with col_metrics:
             if m:
                 r2   = m.get("r2",   0)
                 rmse = m.get("rmse", 0)
-                r2c  = "#43a047" if r2>0.7 else "#ff9800" if r2>0.4 else "#f4511e"
+                r2c  = "#43a047" if r2 > 0.7 else "#ff9800" if r2 > 0.4 else "#f4511e"
                 st.markdown(f"""
                 <div style='background:rgba(240,247,255,0.8);
                             border:1px solid rgba(2,136,209,0.15);
@@ -534,6 +568,7 @@ with col_metrics:
                                      margin-left:0.5rem;'>RMSE={rmse:.1f}</span>
                     </span>
                 </div>""", unsafe_allow_html=True)
+
         n_feat = met.get("n_features", 0)
         train  = met.get("train_size",  0)
         st.markdown(f"""
@@ -549,7 +584,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ── AQI Scale Reference ───────────────────────────────────────
 st.markdown("<p class='section-title'>📋 AQI Scale Reference</p>", unsafe_allow_html=True)
 scale_cols = st.columns(6)
-for col, (rng,cat,clr,ico,desc) in zip(scale_cols,[
+for col, (rng, cat, clr, ico, desc) in zip(scale_cols, [
     ("0–50",   "Good",           "#43a047","😊","No health risk"),
     ("51–100", "Moderate",       "#ff9800","😐","Sensitive caution"),
     ("101–150","Unhealthy (SG)", "#fb8c00","😷","Sensitive groups"),
@@ -559,8 +594,9 @@ for col, (rng,cat,clr,ico,desc) in zip(scale_cols,[
 ]):
     with col:
         st.markdown(f"""
-        <div style='background:{clr}10;border:1px solid {clr}35;border-top:3px solid {clr};
-                    border-radius:11px;padding:0.7rem 0.4rem;text-align:center;
+        <div style='background:{clr}10;border:1px solid {clr}35;
+                    border-top:3px solid {clr};border-radius:11px;
+                    padding:0.7rem 0.4rem;text-align:center;
                     box-shadow:0 2px 10px {clr}12;'>
             <p style='font-size:1.3rem;margin:0;'>{ico}</p>
             <p style='color:{clr};font-family:Space Grotesk;font-size:0.73rem;
@@ -569,10 +605,12 @@ for col, (rng,cat,clr,ico,desc) in zip(scale_cols,[
             <p style='color:{MUTED};font-size:0.63rem;margin:0.2rem 0 0;'>{desc}</p>
         </div>""", unsafe_allow_html=True)
 
-# Footer
+# ── Footer ────────────────────────────────────────────────────
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown(f"""
-<div style='text-align:center;color:{MUTED};font-size:0.73rem;font-family:Space Grotesk;
-            padding:1rem;border-top:1px solid rgba(2,136,209,0.15);'>
-    🌿 Islamabad AQI Predictor · ML-powered · Data: AQICN + Open-Meteo · Built with Streamlit · © 2026
+<div style='text-align:center;color:{MUTED};font-size:0.73rem;
+            font-family:Space Grotesk;padding:1rem;
+            border-top:1px solid rgba(2,136,209,0.15);'>
+    🌿 Islamabad AQI Predictor · ML-powered · Data: AQICN + Open-Meteo
+    · Built with Streamlit · © 2026
 </div>""", unsafe_allow_html=True)
