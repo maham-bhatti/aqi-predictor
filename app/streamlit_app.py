@@ -49,17 +49,13 @@ html, body, [data-testid="stAppViewContainer"] {
     color: var(--text) !important;
     font-family: 'Inter', sans-serif !important;
 }
-
 [data-testid="stAppViewContainer"] {
     background: var(--grad) !important;
 }
-
 h1, h2, h3, h4 {
     font-family: 'Space Grotesk', sans-serif !important;
     color: var(--text) !important;
 }
-
-/* Metric cards */
 [data-testid="stMetricValue"] {
     font-family: 'Space Grotesk', monospace !important;
     font-size: 1.8rem !important;
@@ -72,8 +68,6 @@ h1, h2, h3, h4 {
     font-weight: 500 !important;
 }
 [data-testid="stMetricDelta"] { font-size: 0.82rem !important; }
-
-/* Column blocks */
 div[data-testid="stHorizontalBlock"] > div {
     background: var(--card-bg) !important;
     border: 1px solid var(--border) !important;
@@ -82,8 +76,6 @@ div[data-testid="stHorizontalBlock"] > div {
     backdrop-filter: blur(8px);
     box-shadow: 0 4px 20px rgba(2,136,209,0.06);
 }
-
-/* Alert banners */
 .alert-danger {
     background: linear-gradient(90deg, #fff8f0, #fff3e8);
     border: 1px solid #ffb74d;
@@ -117,8 +109,6 @@ div[data-testid="stHorizontalBlock"] > div {
     font-weight: 600;
     font-size: 0.9rem;
 }
-
-/* Forecast cards */
 .forecast-card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -130,8 +120,6 @@ div[data-testid="stHorizontalBlock"] > div {
     transition: transform 0.2s;
 }
 .forecast-card:hover { transform: translateY(-2px); }
-
-/* Section titles */
 .section-title {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.72rem;
@@ -143,32 +131,22 @@ div[data-testid="stHorizontalBlock"] > div {
     padding-bottom: 0.45rem;
     font-weight: 700;
 }
-
-/* Sidebar */
 [data-testid="stSidebar"] {
     background: var(--bg2) !important;
     border-right: 1px solid var(--border) !important;
 }
-
-/* Plotly charts */
 div[data-testid="stPlotlyChart"] {
     background: transparent !important;
     border-radius: 14px !important;
     overflow: hidden !important;
 }
-
-/* Spinner */
 [data-testid="stSpinner"] { color: var(--accent) !important; }
-
-/* Info/warning boxes */
 [data-testid="stAlert"] {
     background: var(--card-bg) !important;
     border: 1px solid var(--border) !important;
     border-radius: 12px !important;
     color: var(--muted) !important;
 }
-
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg3); }
 ::-webkit-scrollbar-thumb { background: rgba(2,136,209,0.3); border-radius: 3px; }
@@ -181,12 +159,18 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 LAT, LON     = 33.6844, 73.0479
 
-# ── Plotly base layout (light theme) ─────────────────────────
-PLOT_BASE = dict(
-    paper_bgcolor="rgba(255,255,255,0)",
-    plot_bgcolor ="rgba(255,255,255,0)",
-    font_color   ="#1a3a4a",
-)
+# ── Helper: transparent plotly layout ────────────────────────
+def plot_base(height, margin=None):
+    """Returns common layout kwargs — no font_color (removed for Plotly compat)."""
+    if margin is None:
+        margin = dict(l=0, r=0, t=10, b=0)
+    return dict(
+        height=height,
+        margin=margin,
+        paper_bgcolor="rgba(255,255,255,0)",
+        plot_bgcolor="rgba(255,255,255,0)",
+        font=dict(color="#1a3a4a"),
+    )
 
 # ── Resource loaders ──────────────────────────────────────────
 @st.cache_resource
@@ -242,13 +226,13 @@ def aqi_advice(aqi):
     return "Emergency conditions. Everyone should avoid all outdoor activity."
 
 def weather_icon(code):
-    if code == 0:             return "☀️"
-    if code in [1, 2, 3]:    return "⛅"
+    if code == 0:              return "☀️"
+    if code in [1, 2, 3]:     return "⛅"
     if code in range(45, 50): return "🌫️"
     if code in range(51, 68): return "🌧️"
     if code in range(71, 78): return "❄️"
     if code in range(80, 83): return "🌦️"
-    if code in range(95,100): return "⛈️"
+    if code in range(95, 100):return "⛈️"
     return "🌤️"
 
 # ── Data fetchers ─────────────────────────────────────────────
@@ -320,7 +304,7 @@ def make_prediction(aqi_data, weather, models_tup, history_df):
         return aqi_data["aqi"], aqi_data["aqi"], aqi_data["aqi"]
     now      = datetime.now(timezone.utc)
     aqi_vals = [] if history_df.empty else history_df["aqi"].dropna().tolist()
-    def lag(n):  return float(aqi_vals[-n])           if len(aqi_vals) >= n else aqi_data["aqi"]
+    def lag(n):  return float(aqi_vals[-n])            if len(aqi_vals) >= n else aqi_data["aqi"]
     def roll(n): return float(np.mean(aqi_vals[-n:]))  if len(aqi_vals) >= n else aqi_data["aqi"]
     row = {
         "aqi": aqi_data["aqi"], "pm25": aqi_data["pm25"], "pm10": aqi_data["pm10"],
@@ -363,10 +347,11 @@ def make_prediction(aqi_data, weather, models_tup, history_df):
 # ── Header ────────────────────────────────────────────────────
 st.markdown("""
 <div style='display:flex; align-items:center; justify-content:space-between;
-            padding: 0.8rem 0 1rem; border-bottom: 2px solid rgba(2,136,209,0.15);
-            margin-bottom: 1rem;'>
+            padding:0.8rem 0 1rem; border-bottom:2px solid rgba(2,136,209,0.15);
+            margin-bottom:1rem;'>
     <div>
-        <h1 style='font-size:1.9rem; margin:0; color:#1a3a4a; font-family:Space Grotesk,sans-serif; font-weight:800;'>
+        <h1 style='font-size:1.9rem; margin:0; color:#1a3a4a;
+                   font-family:Space Grotesk,sans-serif; font-weight:800;'>
             🌿 Islamabad <span style='color:#0288d1;'>AQI</span> Predictor
         </h1>
         <p style='color:#5a8fa8; margin:0.25rem 0 0; font-size:0.88rem;'>
@@ -389,10 +374,10 @@ with st.spinner("🔄 Fetching live data..."):
     history_df = load_history(30)
     models_tup = load_models()
 
-p24, p48, p72         = make_prediction(aqi_data, weather, models_tup, history_df)
-cat, color, emoji      = aqi_category(aqi_data["aqi"])
-now_str                = datetime.now(timezone.utc).strftime("%d %b %Y · %H:%M UTC")
-aqi_val                = aqi_data["aqi"]
+p24, p48, p72     = make_prediction(aqi_data, weather, models_tup, history_df)
+cat, color, emoji = aqi_category(aqi_data["aqi"])
+now_str           = datetime.now(timezone.utc).strftime("%d %b %Y · %H:%M UTC")
+aqi_val           = aqi_data["aqi"]
 
 # ── Alert banner ──────────────────────────────────────────────
 if aqi_val > 200:
@@ -416,7 +401,8 @@ with col_gauge:
         value=aqi_data["aqi"],
         delta={"reference": p24, "valueformat": ".0f", "prefix": "24h: ",
                "increasing": {"color": "#f4511e"}, "decreasing": {"color": "#43a047"}},
-        title={"text": f"{emoji} {cat}", "font": {"size": 17, "color": "#1a3a4a", "family": "Space Grotesk"}},
+        title={"text": f"{emoji} {cat}",
+               "font": {"size": 17, "color": "#1a3a4a", "family": "Space Grotesk"}},
         gauge={
             "axis": {"range": [0, 300], "tickcolor": "#5a8fa8",
                      "tickfont": {"color": "#5a8fa8", "size": 10}},
@@ -437,8 +423,7 @@ with col_gauge:
                 "suffix": " AQI"},
     ))
     fig_g.update_layout(
-        height=300, margin=dict(l=20, r=20, t=40, b=20),
-        **PLOT_BASE
+        **plot_base(300, margin=dict(l=20, r=20, t=40, b=20))
     )
     st.plotly_chart(fig_g, use_container_width=True)
     st.markdown(f"""
@@ -460,7 +445,7 @@ with col_weather:
 
     poll_names  = ["PM2.5", "PM10", "NO₂", "O₃", "CO×100", "SO₂"]
     poll_vals   = [aqi_data["pm25"], aqi_data["pm10"], aqi_data["no2"],
-                   aqi_data["o3"], aqi_data["co"] * 100, aqi_data["so2"]]
+                   aqi_data["o3"],   aqi_data["co"] * 100, aqi_data["so2"]]
     poll_colors = ["#1e88e5", "#00acc1", "#9c27b0", "#ffa726", "#43a047", "#e91e63"]
 
     fig_p = go.Figure(go.Bar(
@@ -473,10 +458,7 @@ with col_weather:
         textfont={"color": "#1a3a4a", "size": 11},
     ))
     fig_p.update_layout(
-        height=220, margin=dict(l=0, r=0, t=20, b=0),
-        paper_bgcolor="rgba(255,255,255,0)",
-        plot_bgcolor="rgba(255,255,255,0)",
-        font_color="#1a3a4a",
+        **plot_base(220, margin=dict(l=0, r=0, t=20, b=0)),
         xaxis=dict(showgrid=False, color="#5a8fa8",
                    tickfont=dict(size=11, color="#5a8fa8")),
         yaxis=dict(showgrid=True, gridcolor="rgba(2,136,209,0.1)",
@@ -497,7 +479,7 @@ for col, (label, pred, tag) in zip([fc1, fc2, fc3],
     fcat, fcol, femo = aqi_category(pred)
     with col:
         st.markdown(f"""
-        <div class='forecast-card' style='border-top: 4px solid {fcol};'>
+        <div class='forecast-card' style='border-top:4px solid {fcol};'>
             <p style='color:#5a8fa8; font-size:0.72rem; font-family:Space Grotesk;
                       letter-spacing:0.1em; font-weight:700; margin:0;'>{tag.upper()} FORECAST</p>
             <h3 style='color:{fcol}; font-size:2.8rem; margin:0.3rem 0;
@@ -533,23 +515,19 @@ with col_hist:
         for level, lc, ln in [
             (50,  "#43a047", "Good"),
             (100, "#ff9800", "Moderate"),
-            (150, "#f4511e", "Unhealthy")
+            (150, "#f4511e", "Unhealthy"),
         ]:
-            fig_h.add_hline(
-                y=level, line_dash="dot", line_color=lc, opacity=0.6,
-                annotation_text=ln,
-                annotation_font_color=lc,
-                annotation_font_size=10,
-            )
+            fig_h.add_hline(y=level, line_dash="dot", line_color=lc, opacity=0.6,
+                            annotation_text=ln, annotation_font_color=lc,
+                            annotation_font_size=10)
         fig_h.update_layout(
-            height=280, margin=dict(l=0, r=0, t=10, b=0),
+            **plot_base(280),
             xaxis=dict(showgrid=False, color="#5a8fa8",
                        tickfont=dict(color="#5a8fa8")),
             yaxis=dict(showgrid=True, gridcolor="rgba(2,136,209,0.1)",
                        color="#5a8fa8", title="AQI",
                        titlefont=dict(color="#5a8fa8")),
             hovermode="x unified",
-            **PLOT_BASE
         )
         st.plotly_chart(fig_h, use_container_width=True)
     else:
@@ -571,7 +549,7 @@ with col_hourly:
             name="Rain %", marker_color="rgba(2,136,209,0.25)", yaxis="y2",
         ))
         fig_hw.update_layout(
-            height=280, margin=dict(l=0, r=0, t=10, b=0),
+            **plot_base(280),
             xaxis=dict(showgrid=False, color="#5a8fa8",
                        tickvals=list(range(0, 24, 4)),
                        ticktext=[f"{h}:00" for h in range(0, 24, 4)],
@@ -582,10 +560,10 @@ with col_hourly:
             yaxis2=dict(overlaying="y", side="right",
                         color="#0288d1", title="Rain Prob %",
                         titlefont=dict(color="#0288d1"), range=[0, 100]),
-            legend=dict(bgcolor="rgba(0,0,0,0)", font_color="#5a8fa8",
+            legend=dict(bgcolor="rgba(0,0,0,0)",
+                        font=dict(color="#5a8fa8"),
                         orientation="h", y=1.1),
             hovermode="x unified",
-            **PLOT_BASE
         )
         st.plotly_chart(fig_hw, use_container_width=True)
     else:
@@ -621,12 +599,11 @@ with col_heat:
             hoverongaps=False,
         ))
         fig_heat.update_layout(
-            height=280, margin=dict(l=0, r=0, t=10, b=0),
+            **plot_base(280),
             xaxis=dict(showgrid=False, color="#5a8fa8", title="Date",
                        nticks=10, tickfont=dict(color="#5a8fa8")),
             yaxis=dict(showgrid=False, color="#5a8fa8", title="Hour of Day",
                        titlefont=dict(color="#5a8fa8"), autorange="reversed"),
-            **PLOT_BASE
         )
         st.plotly_chart(fig_heat, use_container_width=True)
     else:
@@ -646,10 +623,9 @@ with col_metrics:
                       margin:0.2rem 0 0; font-weight:800;'>{bm}</p>
         </div>
         """, unsafe_allow_html=True)
-
-        for horizon, key in [("24h Forecast", "model_24h"),
-                              ("48h Forecast", "model_48h"),
-                              ("72h Forecast", "model_72h")]:
+        for horizon, key in [("24h Forecast","model_24h"),
+                              ("48h Forecast","model_48h"),
+                              ("72h Forecast","model_72h")]:
             m = met.get(key, {})
             if m:
                 r2   = m.get("r2",   0)
@@ -669,7 +645,6 @@ with col_metrics:
                     </span>
                 </div>
                 """, unsafe_allow_html=True)
-
         n_feat = met.get("n_features", 0)
         train  = met.get("train_size",  0)
         st.markdown(f"""
@@ -687,12 +662,12 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("<p class='section-title'>📋 AQI Scale Reference</p>", unsafe_allow_html=True)
 scale_cols = st.columns(6)
 scale_data = [
-    ("0–50",   "Good",            "#43a047", "😊", "No health risk"),
-    ("51–100", "Moderate",        "#ff9800", "😐", "Sensitive caution"),
-    ("101–150","Unhealthy (SG)",  "#fb8c00", "😷", "Sensitive groups"),
-    ("151–200","Unhealthy",       "#f4511e", "🤢", "Everyone affected"),
-    ("201–300","Very Unhealthy",  "#c62828", "🚨", "Health emergency"),
-    ("300+",   "Hazardous",       "#4e342e", "☠️", "Stay indoors"),
+    ("0–50",   "Good",           "#43a047", "😊", "No health risk"),
+    ("51–100", "Moderate",       "#ff9800", "😐", "Sensitive caution"),
+    ("101–150","Unhealthy (SG)", "#fb8c00", "😷", "Sensitive groups"),
+    ("151–200","Unhealthy",      "#f4511e", "🤢", "Everyone affected"),
+    ("201–300","Very Unhealthy", "#c62828", "🚨", "Health emergency"),
+    ("300+",   "Hazardous",      "#4e342e", "☠️", "Stay indoors"),
 ]
 for col, (rng, cat, clr, ico, desc) in zip(scale_cols, scale_data):
     with col:
