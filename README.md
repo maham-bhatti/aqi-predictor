@@ -110,9 +110,9 @@ pip install -r requirements.txt
 ### 4. Set Environment Variables
 Create a `.env` file in the project root:
 ```env
-AQICN_TOKEN=your_aqicn_api_token
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your_supabase_anon_key
+AQICN_TOKEN=56bd3e6bf4e43f63b9ee23ba692a43bf49da9767
+SUPABASE_URL=[https://your-project.supabase.co](https://zejndpznhjrjejvubsnq.supabase.co)
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inplam5kcHpuaGpyamVqdnVic25xIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTg1MTgzNCwiZXhwIjoyMDk1NDI3ODM0fQ.PUPugZqPODnVrdCmfiLOMSrFQ6T3xi146IBaKGMdKdM
 ```
 
 | Variable | Where to Get |
